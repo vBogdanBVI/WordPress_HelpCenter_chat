@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+            }
+
+            .container {
+                background-color: #fff;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+
+            h1 {
+                text-align: center;
+                color: #333;
+            }
+
+            form p {
+                margin: 15px 0;
+            }
+
+            label {
+                display: block;
+                margin-bottom: 5px;
+                color: #555;
+            }
+
+            input[type="text"] {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+
+            input[type="button"] {
+                background-color: #4CAF50;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-top: 10px;
+            }
+
+            input[type="button"]:hover {
+                background-color: #45a049;
+            }
+
+            button {
+                background-color: #008CBA;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-top: 10px;
+            }
+
+            button:hover {
+                background-color: #007bb5;
+            }
+
+
+            #messageId {
+                color: #888;
+                margin-top: 20px;
+                padding: 10px;
+                font-size: 12px;
+                border-radius: 4px;
+                text-align: center;
+            }
+
+            .green {
+                background-color: lightblue;
+            }
+
+            .red {
+                background-color: red;
+            }
+
+            .embeddedServiceHelpButton .helpButton .uiButton {
+                background-color: #c8102e;
+                font-family: "Source Sans Pro", sans-serif;
+            }
+
+            .embeddedServiceHelpButton .helpButton .uiButton:focus {
+                outline: 1px solid #c8102e;
+            }
+        </style>
+
+
+        <title>Custom Form</title>
+
+    </head>
+
+
+
+
+    <body>
+    <div class="container">
+        <h1>Custom Form</h1>
+        <form id="theForm">
+            <p>
+                <label for="fName">First Name:</label>
+                <input id="fName" name="fName" value="Some First Name" type="text"/>
+            </p>
+            <p>
+                <label for="lName">Last Name:</label>
+                <input id="lName" name="lName" value="Some Last Name" type="text"/>
+            </p>
+            <p>
+                <label for="email">Email:</label>
+                <input id="email" value="Some email" name="email" type="text"/>
+            </p>
+        </form>
+        <input type="button" value="Start Chat" onclick="startChat();"/>
+        </br>
+        <input type="button" value="Clear Chat Session" onclick="clearSession();"/>
+
+        <p id="messageId">Agent is available</p>
+<!--        <button onclick="checkAgentAvailability()">Check Agent status</button>-->
+    </div>
+
+
+    </body>
+        <script type='text/javascript' src='https://service.force.com/embeddedservice/5.0/esw.min.js'></script>
+        <script type='text/javascript'>
+            var initESW = function (gslbBaseURL) {
+                embedded_svc.settings.displayHelpButton = false; //Or false
+                embedded_svc.settings.language = ''; //For example, enter 'en' or 'en-US'
+
+                //embedded_svc.settings.defaultMinimizedText = '...'; //(Defaults to Chat with an Expert)
+                //embedded_svc.settings.disabledMinimizedText = '...'; //(Defaults to Agent Offline)
+
+                //embedded_svc.settings.loadingText = ''; //(Defaults to Loading)
+                //embedded_svc.settings.storageDomain = 'yourdomain.com'; //(Sets the domain for your deployment so that visitors can navigate subdomains during a chat session)
+
+                // Settings for Chat
+                //embedded_svc.settings.directToButtonRouting = function(prechatFormData) {
+                // Dynamically changes the button ID based on what the visitor enters in the pre-chat form.
+                // Returns a valid button ID.
+                //};
+                //embedded_svc.settings.prepopulatedPrechatFields = {}; //Sets the auto-population of pre-chat form fields
+                //embedded_svc.settings.fallbackRouting = []; //An array of button IDs, user IDs, or userId_buttonId
+                //embedded_svc.settings.offlineSupportMinimizedText = '...'; //(Defaults to Contact Us)
+
+
+                // method to get ChatKey
+                embedded_svc.addEventHandler("onChatRequestSuccess", function (data) {
+                    console.log("onChatRequestSuccess event was fired.  liveAgentSessionKey was " + data.liveAgentSessionKey);
+                });
+                // or this method to get ChatKey
+                embedded_svc.addEventHandler("onChatEstablished", function (data) {
+                    var chatKey = data.liveAgentSessionKey;
+                    console.log("liveAgentSessionKey was " + chatKey);
+                });
+
+
+                embedded_svc.settings.enabledFeatures = ['LiveAgent'];
+                embedded_svc.settings.entryFeature = 'LiveAgent';
+
+                embedded_svc.init(
+                    'https://tipico--wordpress.sandbox.my.salesforce.com',
+                    'https://tipico--wordpress.sandbox.my.salesforce-sites.com/chat',
+                    gslbBaseURL,
+                    '00DPw000006X0HC',
+                    'testWP',
+                    {
+                        baseLiveAgentContentURL: 'https://c.la12s-core1.sfdc-cehfhs.salesforceliveagent.com/content',
+                        deploymentId: '572Pw000004yHRt',
+                        buttonId: '573Pw000002FmXp',
+                        baseLiveAgentURL: 'https://d.la12s-core1.sfdc-cehfhs.salesforceliveagent.com/chat',
+                        eswLiveAgentDevName: 'testWP',
+                        isOfflineSupportEnabled: false
+                    }
+                );
+            };
+
+            if (!window.embedded_svc) {
+                var s = document.createElement('script');
+                s.setAttribute('src', 'https://tipico--wordpress.sandbox.my.salesforce.com/embeddedservice/5.0/esw.min.js');
+                s.onload = function () {
+                    initESW(null);
+                };
+                document.body.appendChild(s);
+            } else {
+                initESW('https://service.force.com');
+            }
+
+
+            function startChat() {
+                console.log('Inside Start Chat');
+
+                const fName     = document.getElementById("fName");
+                const lName     = document.getElementById("lName");
+                const emailVar  = document.getElementById("email");
+
+                let preChatVars = [
+                    {
+                        "label": "First Name",
+                        "value": fName.value,
+                        "transcriptFields": ["FirstName__c"]
+                    }, {
+                        "label": "Last Name",
+                        "value": lName.value,
+                        "transcriptFields": ["LastName__c"]
+                    }, {
+                        "label": "Email",
+                        "value": emailVar.value,
+                        "transcriptFields": ["Email__c"]
+                    }
+                ];
+                console.log(preChatVars);
+
+
+                embedded_svc.liveAgentAPI.startChat({
+                    directToAgentRouting: {
+                        buttonId: "573Pw000002FmXp",
+                        fallback: true
+                    },
+                    extraPrechatFormDetails: preChatVars
+                });
+            }
+
+
+            function clearSession() {
+                embedded_svc.liveAgentAPI.clearSession();
+            }
+
+
+            function checkAgentAvailability() {
+                const elementEnabled    = document.getElementsByClassName('uiButton helpButtonEnabled');
+                const elementDisabled   = document.getElementsByClassName('uiButton helpButtonDisabled');
+
+                var messageElement      = document.getElementById("messageId");
+
+                if (elementEnabled && elementEnabled.length > 0) {
+                    messageElement.innerHTML = "Agent is available";
+                    messageElement.className = "green";
+                }
+                if (elementDisabled && elementDisabled.length > 0) {
+                    messageElement.innerHTML = "Agent is offline";
+                    messageElement.className = "red";
+                }
+            }
+
+
+            window.setInterval(function () {
+                checkAgentAvailability();
+            }, 500);
+
+        </script>
+    </body>
+</html>
